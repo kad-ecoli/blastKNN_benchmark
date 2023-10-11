@@ -3,7 +3,6 @@
 FILE=`readlink -e $0`
 bindir=`dirname $FILE`
 dbdir=`dirname $bindir`
-rootdir=`dirname $dbdir`
 
 cd $dbdir
 mkdir -p $dbdir/raw/sequence/
@@ -17,6 +16,7 @@ $bindir/make_target.py $dbdir/curated/sequence/uniprot_sprot_exp.F.is_a $dbdir/t
 $bindir/make_target.py $dbdir/curated/sequence/uniprot_sprot_exp.P.is_a $dbdir/tmp/validate.P.is_a $dbdir/curated/sequence/validate.P.is_a
 $bindir/make_target.py $dbdir/curated/sequence/uniprot_sprot_exp.C.is_a $dbdir/tmp/validate.C.is_a $dbdir/curated/sequence/validate.C.is_a
 cat $dbdir/curated/sequence/validate.F.is_a $dbdir/curated/sequence/validate.P.is_a $dbdir/curated/sequence/validate.C.is_a|cut -f1|sort|uniq > $dbdir/curated/sequence/validate.list
+$bindir/combineFPC.py $dbdir/curated/sequence/validate.list $dbdir/curated/sequence/validate.F.is_a $dbdir/curated/sequence/validate.P.is_a $dbdir/curated/sequence/validate.C.is_a $dbdir/curated/sequence/validate.3.is_a
 
 zcat $dbdir/raw/sequence/uniprot_sprot.fasta.gz $dbdir/raw/cafa-5-protein-function-prediction/train_sequences.fasta.gz|cut -f1,2 -d'|'|sed 's/>sp|/>/g' > $dbdir/tmp/uniprot_sprot_exp.fasta
 cat $dbdir/curated/sequence/uniprot_sprot_exp.fasta $dbdir/curated/sequence/validate.fasta >> $dbdir/tmp/uniprot_sprot_exp.fasta
