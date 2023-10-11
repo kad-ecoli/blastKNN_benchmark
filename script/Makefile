@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-O3
 LDFLAGS=-static
 
-PROGRAM=obo2csv backpropagate curate_GAF fasta2tsv tsv2fasta fasta2miss calculate_ic
+PROGRAM=obo2csv backpropagate curate_GAF fasta2tsv tsv2fasta fasta2miss calculate_ic fasta2len
 
 all: ${PROGRAM}
 
@@ -25,6 +25,9 @@ fasta2tsv: fasta2tsv.cpp
 	${CC} ${CFLAGS} $@.cpp -o $@ ${LDFLAGS}
 
 tsv2fasta: tsv2fasta.cpp
+	${CC} ${CFLAGS} $@.cpp -o $@ ${LDFLAGS}
+
+fasta2len: fasta2len.cpp
 	${CC} ${CFLAGS} $@.cpp -o $@ ${LDFLAGS}
 
 fasta2miss: fasta2miss.cpp

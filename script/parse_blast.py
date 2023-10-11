@@ -55,6 +55,8 @@ def parse_blast(infile):
         nident=float(nident)
         length=float(length)
         evalue=float(evalue)
+        if nident<=1:
+            nident*=length
         if not qacc in blast_dict:
             blast_dict[qacc]=[]
             if len(blast_dict) % 1000 == 0:

@@ -98,9 +98,9 @@ if __name__=="__main__":
 
     txt=''
     for GOterm in sorted(ia_dict.keys()):
-        line="%s\t%.15f\n"%(GOterm,ia_dict[GOterm])
-        if line.endswith("-0.000000000000000\n"):
-            line="%s\t0.0\n"%(GOterm)
+        line="%s\t%.15f\t%s\n"%(GOterm,ia_dict[GOterm],Aspect)
+        if line.endswith("-0.000000000000000\t%s\n"%Aspect):
+            line="%s\t0.000000000000000\t%s\n"%(GOterm,Aspect)
         txt+=line
     fp=open(outfile,'w')
     fp.write(txt)

@@ -32,6 +32,12 @@ $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.F.is_a $dbdir/cur
 $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.P.is_a $dbdir/curated/ontology/naive.P $dbdir/curated/ontology/is_a.csv $dbdir/curated/ontology/name.csv
 $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.C.is_a $dbdir/curated/ontology/naive.C $dbdir/curated/ontology/is_a.csv $dbdir/curated/ontology/name.csv
 
+mkdir -p $dbdir/tmp
+$bindir/IA.py F $dbdir/curated/ontology/is_a.csv $dbdir/curated/sequence/uniprot_sprot_exp.F.is_a $dbdir/tmp/IA.F
+$bindir/IA.py P $dbdir/curated/ontology/is_a.csv $dbdir/curated/sequence/uniprot_sprot_exp.P.is_a $dbdir/tmp/IA.P
+$bindir/IA.py C $dbdir/curated/ontology/is_a.csv $dbdir/curated/sequence/uniprot_sprot_exp.C.is_a $dbdir/tmp/IA.C
+cat $dbdir/tmp/IA.F $dbdir/tmp/IA.P $dbdir/tmp/IA.C |sort > $dbdir/curated/ontology/IA.txt
+
 cd $dbdir
 $bindir/makeblastdb -in   $dbdir/curated/sequence/uniprot_sprot_exp.fasta -dbtype prot -title uniprot_sprot_exp -parse_seqids -logfile $dbdir/tmp/makeblastdb.log
 $bindir/diamond prepdb -d $dbdir/curated/sequence/uniprot_sprot_exp.fasta
