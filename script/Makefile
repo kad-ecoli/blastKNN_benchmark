@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-O3
 LDFLAGS=-static
 
-PROGRAM=obo2csv backpropagate curate_GAF fasta2tsv tsv2fasta fasta2miss subset_GOA subset_tsv cd-hit calculate_ic
+PROGRAM=obo2csv backpropagate curate_GAF fasta2tsv tsv2fasta fasta2miss calculate_ic
 
 all: ${PROGRAM}
 
