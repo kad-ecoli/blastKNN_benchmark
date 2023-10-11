@@ -31,3 +31,9 @@ $bindir/diamond prepdb -d $dbdir/curated/sequence/uniprot_sprot_exp.fasta
 $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.F.is_a $dbdir/curated/ontology/naive.F $dbdir/curated/ontology/is_a.csv $dbdir/curated/ontology/name.csv
 $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.P.is_a $dbdir/curated/ontology/naive.P $dbdir/curated/ontology/is_a.csv $dbdir/curated/ontology/name.csv
 $bindir/calculate_ic $dbdir/curated/sequence/uniprot_sprot_exp.C.is_a $dbdir/curated/ontology/naive.C $dbdir/curated/ontology/is_a.csv $dbdir/curated/ontology/name.csv
+
+cd $dbdir
+$bindir/makeblastdb -in   $dbdir/curated/sequence/uniprot_sprot_exp.fasta -dbtype prot -title uniprot_sprot_exp -parse_seqids -logfile $dbdir/tmp/makeblastdb.log
+$bindir/diamond prepdb -d $dbdir/curated/sequence/uniprot_sprot_exp.fasta
+$bindir/mmseqs/bin/mmseqs createdb $dbdir/curated/sequence/uniprot_sprot_exp.fasta $dbdir/curated/sequence/uniprot_sprot_exp
+$bindir/hhsuite2/scripts/kClust2db.py $dbdir/curated/sequence/uniprot_sprot_exp.fasta $dbdir/curated/sequence/uniprot_sprot_exp.hh2
