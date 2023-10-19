@@ -20,11 +20,14 @@ Output:
                   [1] Aspect
                   [2] Fmax
                   [3] cutoff for Fmax
-                  [4] Smin
-                  [5] cutoff for Smin
-                  [6] wFmax
-                  [7] cutoff for wFmax
-                  [8] coverage
+                  [4] SEM for Fmax
+                  [5] Smin
+                  [6] cutoff for Smin
+                  [7] SEM for Smin
+                  [8] wFmax
+                  [9] cutoff for wFmax
+                  [10] SEM for wFmax
+                  [11] coverage
 '''
 import sys
 from os.path import dirname, basename, abspath
@@ -105,20 +108,26 @@ def dot_product(list1,list2):
     return sum([list1[i]*list2[i] for i in range(len(list1))])
 
 def assess_result(label_dict,ic_dict,predict_dict,outfile):
-    txt="#Aspect\tFmax\tCutoff\tSmin\tCutoff\twFmax\tCutoff\tCoverage\n"
+    txt="#Aspect\tFmax\tCutoff\tFsem\tSmin\tCutoff\tSsem\twFmax\tCutoff\twFsem\tCoverage\n"
     Fmax_list=[]
     Cutoff_F_list=[]
+    Fsem_list=[]
     Smin_list=[]
     Cutoff_S_list=[]
+    Ssem_list=[]
     wFmax_list=[]
     Cutoff_wF_list=[]
+    wFsem_list=[]
     Coverage_list=[]
     for Aspect in Aspect_list:
         Fmax=0
         Cutoff_F=0
+        F_list=[]
         Smin=0
         Cutoff_S=1
+        S_list=[]
         wFmax=0
+        wF_list=[]
         Cutoff_wF=0
         total_label=len(label_dict[Aspect])
         if total_label==0:
@@ -211,22 +220,73 @@ def assess_result(label_dict,ic_dict,predict_dict,outfile):
             if wF>=wFmax:
                 wFmax=wF
                 Cutoff_wF=cutoff
-        txt+="%s\t%.4f\t%.3f\t%.4f\t%.3f\t%.4f\t%.3f\t%.4f\n"%(
-            Aspect,Fmax,Cutoff_F,Smin,Cutoff_S,wFmax,Cutoff_wF,Coverage)
+        target_list=[]
+        for target in label_dict[Aspect]:
+            target_list.append(target)
+            if not target in predict_dict[Aspect]:
+                F_list.append(0)
+                wF_list.append(0)
+                S_list.append(label_ic_dict[target])
+                continue
+            else:
+                F_predict_list=[]
+                wF_predict_list=[]
+                S_predict_list=[]
+                if target in predict_dict[Aspect]:
+                    for GOterm,cscore in predict_dict[Aspect][target]:
+                        if cscore>=Cutoff_F:
+                            F_predict_list.append(GOterm)
+                        if cscore>=Cutoff_wF:
+                            wF_predict_list.append(GOterm)
+                        if cscore>=Cutoff_S:
+                            S_predict_list.append(GOterm)
+                label_set=label_dict[Aspect][target]
+                wpredict=sum_ic(wF_predict_list,ic_dict)
+                tp=label_set.intersection(F_predict_list)
+                wtp=sum_ic(label_set.intersection(wF_predict_list),ic_dict)
+                precision=1.*len(tp)/len(F_predict_list) if len(F_predict_list) else 0
+                wprecision=wtp/wpredict if wpredict>0 else 0
+                recall=1.*len(tp)/len(label_set)
+                wrecall=wtp/label_ic_dict[target] if label_ic_dict[target]>0 else 0
+                F_list.append(2./(1./precision+1./recall) if precision*recall>0 else 0)
+                wF_list.append(2./(1./wprecision+1./wrecall) if wprecision*wrecall>0 else 0)
+                mi=sum([ic_dict[GOterm] for GOterm in S_predict_list if not GOterm in label_set])
+                ru=sum([ic_dict[GOterm] for GOterm in label_set if not GOterm in S_predict_list])
+                S_list.append(sqrt(mi*mi+ru*ru))
+        targetNum=1.*len(F_list)
+        txt_Aspect="#target\tF\tS\twF\n"
+        for t in range(len(target_list)):
+            txt_Aspect+="%s\t%.3f\t%.3f\t%.3f\n"%(target_list[t],F_list[t],S_list[t],wF_list[t])
+        txt_Aspect+="#mean\t%.3f\t%.3f\t%.3f\n"%(sum(F_list)/targetNum,
+            sum(S_list)/targetNum,sum(wF_list)/targetNum)
+        fp=open(outfile+'.'+Aspect,'w')
+        fp.write(txt_Aspect)
+        fp.close()
+        Fmean =sum(F_list)/targetNum
+        wFmean=sum(wF_list)/targetNum
+        Smean =sum(S_list)/targetNum
+        Fsem  =sqrt(sum([( F- Fmean)*( F- Fmean) for  F in  F_list]))/targetNum
+        wFsem =sqrt(sum([(wF-wFmean)*(wF-wFmean) for wF in wF_list]))/targetNum
+        Ssem  =sqrt(sum([( S- Smean)*( S- Smean) for  S in  S_list]))/targetNum
+        txt+="%s\t%.4f\t%.3f\t%.4f\t%.4f\t%.3f\t%.4f\t%.4f\t%.3f\t%.4f\t%.4f\n"%(
+            Aspect,Fmax,Cutoff_F,Fsem,Smin,Cutoff_S,Ssem,wFmax,Cutoff_wF,wFsem,Coverage)
         Fmax_list.append(Fmax)
         Cutoff_F_list.append(Cutoff_F)
+        Fsem_list.append(Fsem)
         Smin_list.append(Smin)
         Cutoff_S_list.append(Cutoff_S)
+        Ssem_list.append(Ssem)
         wFmax_list.append(wFmax)
         Cutoff_wF_list.append(Cutoff_wF)
+        wFsem_list.append(wFsem)
         Coverage_list.append(Coverage)
 
     divide=len(Fmax_list)
     if divide:
-        txt+="#mean\t%.4f\t%.3f\t%.4f\t%.3f\t%.4f\t%.3f\t%.4f\n"%(
-            sum(Fmax_list)/divide, sum(Cutoff_F_list)/divide,
-            sum(Smin_list)/divide, sum(Cutoff_S_list)/divide,
-            sum(wFmax_list)/divide, sum(Cutoff_wF_list)/divide,
+        txt+="#mean\t%.4f\t%.3f\t%.4f\t%.4f\t%.3f\t%.4f\t%.4f\t%.3f\t%.4f\t%.4f\n"%(
+            sum(Fmax_list)/divide, sum(Cutoff_F_list)/divide, sum(Fsem_list)/divide,
+            sum(Smin_list)/divide, sum(Cutoff_S_list)/divide, sum(Ssem_list)/divide,
+            sum(wFmax_list)/divide, sum(Cutoff_wF_list)/divide, sum(wFsem_list)/divide,
             sum(Coverage_list)/divide)
     fp=open(outfile,'w')
     fp.write(txt)

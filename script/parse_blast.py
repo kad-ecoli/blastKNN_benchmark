@@ -62,6 +62,8 @@ def parse_blast(infile):
             if len(blast_dict) % 1000 == 0:
                 print("parse %d %s"%(len(blast_dict),qacc))
         ID=nident/max((qlen,slen))
+        if length<1:
+            length=1
         blast_dict[qacc].append([sacc,
             bitscore,
             bitscore * ID,
@@ -69,7 +71,7 @@ def parse_blast(infile):
             nident / slen,
             nident / length,
             ID,
-            1,
+            1.0,
         ])
     return blast_dict
 
@@ -97,7 +99,7 @@ def write_output(blast_dict,exp_dict,outfile,scoring):
                     
         for cscore,GOterm in sorted([(predict_dict[GOterm],
             GOterm) for GOterm in predict_dict],reverse=True):
-            if scoring<10:
+            if scoring<10 and cscore>0:
                 cscore/=denominator
             cscore="%.3f"%cscore
             if cscore=="0.000":

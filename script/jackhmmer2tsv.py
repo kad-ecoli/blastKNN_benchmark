@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 docstring='''
-phmmer2tsv.py query.fasta db.fasta input.pfam input.tblout output.m6
+jackhmmer2tsv.py query.fasta db.fasta input.pfam input.tblout output.m6
 '''
 import os
 import sys
@@ -18,7 +18,7 @@ def fasta2len(filename):
         len_dict[items[0]]=items[1]
     return len_dict
 
-def phmmer2tsv(query_filename, db_filename, pfam_filename,
+def jackhmmer2tsv(query_filename, db_filename, pfam_filename,
     tblout_filename, output_filename):
     query_len_dict=fasta2len(query_filename)
     db_len_dict   =fasta2len(db_filename)
@@ -26,32 +26,38 @@ def phmmer2tsv(query_filename, db_filename, pfam_filename,
     nident_dict=dict()
     fp=open(pfam_filename,'r')
     for block in fp.read().split('//'):
-        query=''
-        query_seq=''
+        sacc_list=[]
+        sacc_dict=dict()
         for line in block.splitlines():
             if line.startswith('#') or len(line)==0:
                 continue
             sacc,sequence=line.split()
             sacc=sacc.split('/')[0]
-            if not query:
-                query=sacc
-                query_seq=sequence
-                nident_dict[query]=dict()
-                length=0
-                for i in range(len(sequence)):
-                    if sequence[i]!='.' and sequence[i]!='-':
-                        length+=1
-                nident_dict[query][sacc]=(length,length)
-            else:
-                nident=0
-                length=0
-                for i in range(len(sequence)):
-                    if sequence[i]!='.' and sequence[i]!='-':
-                        nident+=(sequence[i]==query_seq[i])
-                        length+=1
-                nident_dict[query][sacc]=(length,nident)
-    fp.close()
+            sacc_list.append(sacc)
+            sacc_dict[sacc]=sequence
 
+        for i in range(len(sacc_list)):
+            qacc=sacc_list[i]
+            if not qacc in query_len_dict:
+                continue
+            sequence1=sacc_dict[qacc]
+            if not qacc in nident_dict:
+                nident_dict[qacc]=dict()
+            for j in range(len(sacc_list)):
+                sacc=sacc_list[j]
+                if not sacc in db_len_dict:
+                    continue
+                if not sacc in nident_dict:
+                    nident_dict[sacc]=dict()
+                sequence2=sacc_dict[sacc]
+                length=0
+                nident=0
+                for r in range(len(sequence1)):
+                    if sequence1[r]!='.' and sequence1[r]!='-':
+                        nident+=(sequence1[r]==sequence2[r])
+                        length+=1
+                nident_dict[qacc][sacc]=(length,nident)
+    fp.close()
 
     txt=''
     fp=open(tblout_filename,'r')
@@ -91,5 +97,5 @@ if __name__=="__main__":
     tblout_filename=sys.argv[4]
     output_filename=sys.argv[5]
 
-    phmmer2tsv(query_filename, db_filename, pfam_filename,
+    jackhmmer2tsv(query_filename, db_filename, pfam_filename,
         tblout_filename, output_filename)
