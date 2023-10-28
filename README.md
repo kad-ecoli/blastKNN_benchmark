@@ -9,6 +9,12 @@ script/download_sequence.sh
 script/download_validate.sh
 ```
 
+The training data set are available at
+`` curated/sequence/uniprot_sprot_exp* ``.
+The validation data set are available at
+`` curated/sequence/validate* ``.
+Among these files, the one ending with ".is_a" are the ground truth labels.
+
 #### run function prediction ####
 ```bash
 script/run_blastp.sh   
