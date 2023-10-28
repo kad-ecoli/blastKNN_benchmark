@@ -141,7 +141,7 @@ for c,metric in enumerate(["Fmax","wFmax"]):
             borderpad=0.1,labelspacing=0.1,handlelength=3,
             handletextpad=0.1,borderaxespad=0.1,columnspacing=0.1)
     ax=plt.subplot(2,2,2*c+2)
-    s=2
+    s=3
     method=method_list[m]
     for a,Aspect in enumerate(("Molecular Function (MF)",
                                "Biological Process (BP)",

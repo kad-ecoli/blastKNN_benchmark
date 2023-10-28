@@ -27,32 +27,18 @@ method_dict={
     "hhblits"  :"HHblits",
     }
 
-color_list=[
-    "black",
-    "white",
-    "black",
-    "black",
-    "white",
-    "black",
-    "black",
-    "black",
-    "white",
-    "black",
-    "white",
-    ]
-
 scoring_list=[
-    ( 1,"red",      "weight: bitscore"),
-    ( 2,"black",    "weight: bitscore * nident / max(qlen, tlen)"),
-    ( 3,"pink",     "weight: nident / qlen "),
-    ( 4,"green",    "weight: nident / tlen"),
-    ( 5,"blue",     "weight: nident / alnlen"),
-    ( 6,"orange",   "weight: nident / max(qlen, tlen)"),
-    ( 7,"magenta",  "weight: 1"),
-    (13,"lightgrey","max: nident / qlen"),
-    (14,"purple",   "max: nident / tlen"),
-    (15,"yellow",   "max: nident / alnlen"),
-    (16,"grey",     "max: nident / max(qlen, tlen)"),
+    ( 1,"weight: bitscore"),
+    ( 2,"weight: bitscore * nident / max(qlen, tlen)"),
+    ( 3,"weight: nident / qlen "),
+    ( 4,"weight: nident / tlen"),
+    ( 5,"weight: nident / alnlen"),
+    ( 6,"weight: nident / max(qlen, tlen)"),
+    ( 7,"weight: 1"),
+    (13,"max: nident / qlen"),
+    (14,"max: nident / tlen"),
+    (15,"max: nident / alnlen"),
+    (16,"max: nident / max(qlen, tlen)"),
     ]
 
 
@@ -65,7 +51,7 @@ for metric in ["Fmax","wFmax"]:
         plt.figure(figsize=(7.87,1.7*len(method_list)))
     for m,method in enumerate(method_list):
         ax=plt.subplot(len(method_list),1,m+1)
-        for s,(suffix,color,label) in enumerate(scoring_list):
+        for s,(suffix,label) in enumerate(scoring_list):
             filename="%s/result/%s_validate.%d.txt"%(rootdir,method,suffix)
             if not os.path.isfile(filename):
                 continue
@@ -82,16 +68,42 @@ for metric in ["Fmax","wFmax"]:
                         value_list.append(float(items[7]))
                         sem_list.append(float(items[9]))
             fp.close()
-            plt.bar(np.arange(3)+width*(s+0.5), value_list,
-                width=width,facecolor=color, label=label)
+            if s==1:
+                plt.bar(np.arange(3)+width*(s+0.5), value_list,
+                    width=width,facecolor="grey", edgecolor="k")
+                if metric=="wFax":
+                    if m==0:
+                        plt.bar(1+width*(s+0.5), value_list[1],
+                            width=width,facecolor="black")
+                    elif m==1:
+                        plt.bar(np.arange(2)+width*(s+0.5), value_list[:2],
+                            width=width,facecolor="black")
+                    elif m==2:
+                        plt.bar(2+width*(s+0.5), value_list[2],
+                            width=width,facecolor="black")
+                else:
+                    if m==0:
+                        plt.bar(0+width*(s+0.5), value_list[0],
+                            width=width,facecolor="black")
+                        plt.bar(2+width*(s+0.5), value_list[2],
+                            width=width,facecolor="black")
+                    elif m==1:
+                        plt.bar(1+width*(s+0.5), value_list[1],
+                            width=width,facecolor="black")
+            else:
+                plt.bar(np.arange(3)+width*(s+0.5), value_list,
+                    width=width,facecolor="white", edgecolor="k")
             for v,value in enumerate(value_list):
                 plt.text(v+width*(s+0.5),
                     value+sem_list[v]+0.02,"%.3f"%value,va="bottom",ha="center",
                     fontsize=fontsize,rotation=70)
                 plt.plot([v+width*(s+0.5),v+width*(s+0.5)],
                     [value,value+sem_list[v]],'k-')
+                color="black"
+                if s==1:
+                    color="white"
                 plt.text(v+width*(s+0.5),0.01,"S%d"%(s+1),fontsize=fontsize,
-                    color=color_list[s],va="bottom",ha="center")
+                    color=color,va="bottom",ha="center")
         plt.yticks([0,0.2,0.4,0.6,0.8],
             ["0","0.2","0.4","0.6","0.8"],fontsize=fontsize)
         plt.ylabel("%s for\n%s"%(metric,method_dict[method]),

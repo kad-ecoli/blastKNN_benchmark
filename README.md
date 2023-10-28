@@ -33,6 +33,7 @@ script/tune_blastp.py
 script/tune_diamond.py
 script/tune_mmseqs.py
 script/tune_mmseqs_iteration.py
+script/tune.py
 
 script/plot_best.py
 ```

@@ -8,7 +8,7 @@ cd       $dbdir/result
 
 for dataset in `echo validate`;do
     for evalue in `echo 0.0001 0.001 0.01 0.1 1 10 100`;do
-        for max_target_seqs in `echo 10 25 50 100 200 500 1000 2000`;do
+        for max_target_seqs in `echo 10 25 50 100 200 300 500 1000 2000`;do
             if [ -s "diamond_${evalue}_${max_target_seqs}_$dataset.txt" ];then
                 continue
             fi

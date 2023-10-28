@@ -11,20 +11,6 @@ method_list=["faster","fast", "diamond",
     "mid-sensitive","sensitive","more-sensitive","very-sensitive","ultra-sensitive"
     ]
 
-color_list=[
-    "black",
-    "white",
-    "black",
-    "black",
-    "white",
-    "black",
-    "black",
-    "black",
-    "white",
-    "black",
-    "white",
-    ]
-
 scoring_list=[
     ( 1,"red",      "weight: bitscore"),
     ( 2,"black",    "weight: bitscore * nident / max(qlen, tlen)"),
@@ -46,7 +32,8 @@ for metric in ["Fmax","wFmax"]:
     if metric=="wFmax":
         plt.figure(figsize=(7.87,1.3*len(method_list)))
     else:
-        plt.figure(figsize=(7.87,1.7*len(method_list)))
+        #plt.figure(figsize=(7.87,1.7*len(method_list)))
+        plt.figure(figsize=(7.87,1.5*len(method_list)))
     for m,method in enumerate(method_list):
         ax=plt.subplot(len(method_list),1,m+1)
         for s,(suffix,color,label) in enumerate(scoring_list):
@@ -66,16 +53,38 @@ for metric in ["Fmax","wFmax"]:
                         value_list.append(float(items[7]))
                         sem_list.append(float(items[9]))
             fp.close()
-            plt.bar(np.arange(3)+width*(s+0.5), value_list,
-                width=width,facecolor=color, label=label)
+            if s==1:
+                plt.bar(np.arange(3)+width*(s+0.5), value_list,
+                    width=width,facecolor="grey", edgecolor="k")
+                if m in [6,7]:
+                    plt.bar(0+width*(s+0.5), value_list[0],
+                        width=width,facecolor="black", edgecolor="k")
+                if m in [4,5]:
+                    plt.bar(1+width*(s+0.5), value_list[1],
+                        width=width,facecolor="black", edgecolor="k")
+                if metric=="wFmax":
+                    if m in [4,5,6,7]:
+                        plt.bar(2+width*(s+0.5), value_list[2],
+                            width=width,facecolor="black", edgecolor="k")
+                else:
+                    if m in [7]:
+                        plt.bar(2+width*(s+0.5), value_list[2],
+                            width=width,facecolor="black", edgecolor="k")
+            else:
+                plt.bar(np.arange(3)+width*(s+0.5), value_list,
+                    width=width,facecolor="white", edgecolor="k")
             for v,value in enumerate(value_list):
                 plt.text(v+width*(s+0.5),
                     value+sem_list[v]+0.02,"%.3f"%value,va="bottom",ha="center",
                     fontsize=fontsize,rotation=70)
                 plt.plot([v+width*(s+0.5),v+width*(s+0.5)],
                     [value,value+sem_list[v]],'k-')
+                if s==1:
+                    color="white"
+                else:
+                    color="black"
                 plt.text(v+width*(s+0.5),0.01,"S%d"%(s+1),fontsize=fontsize,
-                    color=color_list[s],va="bottom",ha="center")
+                    color=color,va="bottom",ha="center")
         plt.yticks([0,0.2,0.4,0.6,0.8],
             ["0","0.2","0.4","0.6","0.8"],fontsize=fontsize)
         plt.ylabel("%s for\n--%s"%(metric,method),

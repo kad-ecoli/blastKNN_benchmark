@@ -10,16 +10,16 @@ rootdir=os.path.dirname(bindir)
 method_list=[
     ("BLASTp (-evalue 0.1 -max_target_seqs 25)","red","blastp_0.1_25_validate.txt"),
     ("DIAMOND (--evalue 1 --ultra-sensitive)","green","diamond_1_25_validate.txt"),
-    #("MMseqs2 (--max-seqs 25)","black","mmseqs_5.7_25_validate.txt"),
+    ("MMseqs2 (-s 7.5 --max-seqs 50)","black","mmseqs_7.5_100_validate.txt"),
     ("BLASTp (default)","pink","blastp_validate.2.txt"),
     ("DIAMOND (default)","lightgreen","diamond_validate.2.txt"),
     ("MMseqs2 (default)","lightgrey","mmseqs_validate.2.txt"),
     ]
 
-fontsize=9
+fontsize=10
 width=1./len(method_list)
 for c,metric in enumerate(["Fmax","wFmax"]):
-    plt.figure(figsize=(7.87,1.7))
+    plt.figure(figsize=(7.87,1.9))
     ax=plt.subplot(1,1,1)
     for m,items in enumerate(method_list):
         method=items[0]
@@ -48,7 +48,7 @@ for c,metric in enumerate(["Fmax","wFmax"]):
             plt.text(v+width*(m+0.5),
                 value+sem_list[v]+0.02 #+0.18*(v==1)*(m==3)
                 ,"%.3f"%value,va="bottom",ha="center",
-                fontsize=fontsize,rotation=0)
+                fontsize=fontsize,rotation=10)
             plt.plot([v+width*(m+0.5),v+width*(m+0.5)],
                 [value,value+sem_list[v]],'k-')
             #plt.text(v+width*(m+0.5),0.01,method,
@@ -61,11 +61,11 @@ for c,metric in enumerate(["Fmax","wFmax"]):
                 "Molecular Function (MF)",
                 "Biological Process (BP)",
                 "Cellular Component (CC)"],fontsize=fontsize)
-        plt.legend(loc="upper left",fontsize=fontsize,ncol=3,
-            borderpad=0.1,labelspacing=0.1,handlelength=1,
-            handletextpad=0.1,borderaxespad=0.2,columnspacing=0.1)
     else:
         plt.xticks([])
+    plt.legend(loc="upper left",fontsize=fontsize,ncol=2,
+        borderpad=0.1,labelspacing=0.1,handlelength=1,
+        handletextpad=0.1,borderaxespad=0.2,columnspacing=0.1)
     plt.plot([1,1],[0,1],'k--')
     plt.plot([2,2],[0,1],'k--')
     plt.axis([0,3,0,1])

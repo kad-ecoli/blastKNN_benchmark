@@ -8,7 +8,7 @@ mkdir -p $dbdir/result/tmp
 cd       $dbdir/result
 for dataset in `echo validate`;do
     for s in `echo 1.0 4.0 5.7 7.5 10`;do
-        for max_seqs in `echo 10 25 50 100 300 500`;do
+        for max_seqs in `echo 10 25 50 100 200 300 500 1000`;do
             if [ -s "mmseqs_${s}_${max_seqs}_$dataset.txt" ];then
                 continue
             fi
