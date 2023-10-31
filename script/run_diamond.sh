@@ -6,7 +6,7 @@ dbdir=`dirname $bindir`
 mkdir -p $dbdir/result
 cd       $dbdir/result
 for dataset in `echo validate`;do
-    $bindir/diamond blastp --db $dbdir/curated/sequence/uniprot_sprot_exp.fasta --outfmt 6 qseqid qlen sseqid slen evalue bitscore length nident --query $dbdir/curated/sequence/$dataset.fasta --out default_$dataset.m6
+    $bindir/diamond blastp --db $dbdir/curated/sequence/uniprot_sprot_exp.fasta --outfmt 6 qseqid qlen sseqid slen evalue bitscore length nident --query $dbdir/curated/sequence/$dataset.fasta --out diamond_$dataset.m6
 
     for m in `echo 1 2 3 4 5 6 7 13 14 15 16`;do
         $bindir/parse_blast.py diamond_$dataset.m6 $dbdir/curated/sequence/uniprot_sprot_exp.F.is_a diamond_$dataset.F.$m.tsv $m
